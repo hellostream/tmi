@@ -1,4 +1,4 @@
-defmodule TwitchChatExampleTest do
+defmodule TwitchChat.BotExampleTest do
   use ExUnit.Case, async: true
 
   describe "emote_mode" do
@@ -17,7 +17,7 @@ defmodule TwitchChatExampleTest do
 
       expected = %TwitchChat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: true}
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
 
     test "emote_only_off" do
@@ -35,7 +35,7 @@ defmodule TwitchChatExampleTest do
 
       expected = %TwitchChat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: false}
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 
@@ -90,7 +90,7 @@ defmodule TwitchChatExampleTest do
         user_type: :normal
       }
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 
@@ -134,7 +134,7 @@ defmodule TwitchChatExampleTest do
         user_type: :normal
       }
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 
@@ -182,7 +182,7 @@ defmodule TwitchChatExampleTest do
         user_type: :normal
       }
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 
@@ -231,7 +231,7 @@ defmodule TwitchChatExampleTest do
         user_type: :normal
       }
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 
@@ -274,7 +274,7 @@ defmodule TwitchChatExampleTest do
         viewer_count: 54
       }
 
-      assert TwitchChat.parse_message(message) == expected
+      assert TwitchChat.Bot.parse_message(message) == expected
     end
   end
 end

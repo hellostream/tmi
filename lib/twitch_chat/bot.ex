@@ -1,9 +1,54 @@
-defmodule TwitchChat do
-  @moduledoc false
+defmodule TwitchChat.Bot do
+  @moduledoc ~S"""
+  The basis of your Twitch chat bot.
+
+  Defines the behaviour and a way to implement it.
+
+  ## Usage
+
+  Create a module and `use TwitchChat.Bot`.
+  Then you can implement the callbacks you care about.
+
+  For example you can implement `handle_event/1` and pattern-match on only the
+  events you care about. Any functions that don't match will just fallback to
+  the default implementation (which does a debug log).
+
+      defmodule MyBot do
+        use TwitchChat.Bot
+
+        alias TwitchChat.Events.Message
+
+        @impl TwitchChat.Bot
+        def handle_event(%Message{message: "!" <> cmd} = msg) do
+          case cmd do
+            "roll" -> say(msg.channel, "#{msg.user_name} rolled a #{Enum.random(1..6)}!")
+            "echo " <> rest -> say(msg.channel, rest)
+            _ -> :noop
+          end
+        end
+      end
+
+  """
 
   require Logger
 
   import TwitchChat.Utils, only: [debug: 2]
+
+  ## Handle event is what most bot implementations will care about.
+
+  @callback handle_event(event :: TwitchChat.event()) :: any
+
+  ## IRC-related callbacks, most won't care about.
+
+  @callback handle_connected(server :: String.t(), port :: integer) :: any
+  @callback handle_disconnected() :: any
+  @callback handle_join(channel :: String.t()) :: any
+  @callback handle_join(channel :: String.t(), user :: String.t()) :: any
+  @callback handle_logged_in() :: any
+  @callback handle_login_failed(reason :: atom) :: any
+  @callback handle_part(channel :: String.t()) :: any
+  @callback handle_part(channel :: String.t(), user :: String.t()) :: any
+  @callback handle_unrecognized(msg :: any) :: any
 
   @doc false
   defmacro __using__(_opts) do
@@ -12,7 +57,7 @@ defmodule TwitchChat do
 
       import TwitchChat.Utils, only: [debug: 2]
 
-      @behaviour TwitchChat.Handler
+      @behaviour TwitchChat.Bot
 
       @doc """
       Starts the bot.
@@ -138,7 +183,7 @@ defmodule TwitchChat do
       @doc false
       @impl GenServer
       def handle_info(msg, conn) do
-        TwitchChat.apply_incoming_to_bot(msg, __MODULE__)
+        TwitchChat.Bot.apply_incoming_to_bot(msg, __MODULE__)
         {:noreply, conn}
       end
 
@@ -146,61 +191,56 @@ defmodule TwitchChat do
       ## Bot callbacks
       ## -----------------------------------------------------------------------
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_connected(server, port) do
         debug(__MODULE__, "Connected to #{server} on #{port}")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_disconnected() do
         debug(__MODULE__, "Disconnected")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_event(event) do
-        TwitchChat.default_handle_event(event, __MODULE__)
+        TwitchChat.Bot.default_handle_event(event, __MODULE__)
       end
 
       # Add a fall-through `handle_event/1` to avoid match errors on events the
       # bot implementer doesn't care about.
-      @before_compile {TwitchChat, :add_handle_event_fallback}
+      @before_compile {TwitchChat.Bot, :add_handle_event_fallback}
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_join(channel) do
         debug(__MODULE__, "[#{channel}] you joined")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_join(channel, user) do
         debug(__MODULE__, "[#{channel}] #{user} joined")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_logged_in() do
         debug(__MODULE__, "Logged in")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_login_failed(reason) do
         debug(__MODULE__, "Login failed: #{reason}")
       end
 
-      @impl TwitchChat.Handler
-      def handle_mention(message, sender, channel) do
-        debug(__MODULE__, "[#{channel}] MENTION - <#{sender}> #{message}")
-      end
-
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_part(channel) do
         debug(__MODULE__, "[#{channel}] you left")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_part(channel, user) do
         debug(__MODULE__, "[#{channel}] #{user} left")
       end
 
-      @impl TwitchChat.Handler
+      @impl TwitchChat.Bot
       def handle_unrecognized(msg) do
         debug(__MODULE__, "UNRECOGNIZED: #{inspect(msg, pretty: true)}")
       end
@@ -213,7 +253,6 @@ defmodule TwitchChat do
         handle_join: 2,
         handle_logged_in: 0,
         handle_login_failed: 1,
-        handle_mention: 3,
         handle_part: 1,
         handle_part: 2,
         handle_unrecognized: 1
@@ -228,7 +267,7 @@ defmodule TwitchChat do
   defmacro add_handle_event_fallback(_env) do
     quote do
       def handle_event(event) do
-        TwitchChat.default_handle_event(event, __MODULE__)
+        TwitchChat.Bot.default_handle_event(event, __MODULE__)
       end
     end
   end
@@ -309,14 +348,12 @@ defmodule TwitchChat do
     bot.handle_part(channel, user.user)
   end
 
-  def apply_incoming_to_bot({:kicked, _user, _channel} = msg, bot) do
+  def apply_incoming_to_bot({:kicked, _user, _channel} = msg, _bot) do
     Logger.warning("We got a kick/2 event? #{inspect(msg)}")
-    :ok
   end
 
-  def apply_incoming_to_bot({:kicked, _user, _kicker, _channel} = msg, bot) do
+  def apply_incoming_to_bot({:kicked, _user, _kicker, _channel} = msg, _bot) do
     Logger.warning("We got a kick/3 event? #{inspect(msg)}")
-    :ok
   end
 
   def apply_incoming_to_bot({:received, message, sender}, bot) do
@@ -327,8 +364,8 @@ defmodule TwitchChat do
     bot.handle_message(message, sender.user, channel)
   end
 
-  def apply_incoming_to_bot({:mentioned, message, sender, channel}, bot) do
-    bot.handle_mention(message, sender.user, channel)
+  def apply_incoming_to_bot({:mentioned, _message, _sender, _channel} = msg, _bot) do
+    Logger.warning("We got a mentioned/3 event? #{inspect(msg)}")
   end
 
   def apply_incoming_to_bot({:me, message, sender, channel}, bot) do

@@ -1,16 +1,16 @@
-defmodule TwitchChatTest do
+defmodule TwitchChat.BotTest do
   use ExUnit.Case, async: true
 
-  doctest TwitchChat, import: true
+  doctest TwitchChat.Bot, import: true
 
-  @chat_data_path Path.expand("support/data/irc/messages", __DIR__)
+  @chat_data_path Path.expand("../support/data/irc/messages", __DIR__)
   @chat_message_files File.ls!(@chat_data_path)
 
-  @eventsub_data_path Path.expand("support/data/eventsub", __DIR__)
+  @eventsub_data_path Path.expand("../support/data/eventsub", __DIR__)
   @eventsub_message_files File.ls!(@eventsub_data_path)
 
   defmodule TestBot do
-    use TwitchChat
+    use TwitchChat.Bot
   end
 
   describe "chat" do
@@ -22,7 +22,7 @@ defmodule TwitchChatTest do
         {messages, []} = Code.eval_file(unquote(file), @chat_data_path)
 
         for message <- messages do
-          assert TwitchChat.apply_incoming_to_bot(message, TestBot)
+          assert TwitchChat.Bot.apply_incoming_to_bot(message, TestBot)
         end
       end
     end
