@@ -1,16 +1,16 @@
-defmodule TMI.MixProject do
+defmodule TwitchChat.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :tmi,
-      version: "0.6.1",
-      elixir: "~> 1.13",
+      app: :twitch_chat,
+      version: "0.1.0",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      name: "tmi.ex",
-      source_url: "https://github.com/ryanwinchester/tmi.ex",
-      homepage_url: "https://github.com/ryanwinchester/tmi.ex",
+      name: "twitch_chat",
+      source_url: "https://github.com/hellostream/twitch_chat",
+      homepage_url: "https://github.com/hellostream/twitch_chat",
       description: description(),
       docs: docs(),
       package: package()
@@ -57,7 +57,7 @@ defmodule TMI.MixProject do
       name: "tmi",
       licenses: ["Apache-2.0"],
       links: %{
-        "GitHub" => "https://github.com/ryanwinchester/tmi.ex"
+        "GitHub" => "https://github.com/hellostream/twitch_chat"
       },
       files: ["README.md", "mix*", "lib/**/*.ex"]
     ]

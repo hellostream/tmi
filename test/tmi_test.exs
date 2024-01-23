@@ -1,7 +1,7 @@
-defmodule TMITest do
+defmodule TwitchChatTest do
   use ExUnit.Case, async: true
 
-  doctest TMI, import: true
+  doctest TwitchChat, import: true
 
   @chat_data_path Path.expand("support/data/irc/messages", __DIR__)
   @chat_message_files File.ls!(@chat_data_path)
@@ -10,7 +10,7 @@ defmodule TMITest do
   @eventsub_message_files File.ls!(@eventsub_data_path)
 
   defmodule TestBot do
-    use TMI
+    use TwitchChat
   end
 
   describe "chat" do
@@ -22,7 +22,7 @@ defmodule TMITest do
         {messages, []} = Code.eval_file(unquote(file), @chat_data_path)
 
         for message <- messages do
-          assert TMI.apply_incoming_to_bot(message, TestBot)
+          assert TwitchChat.apply_incoming_to_bot(message, TestBot)
         end
       end
     end
@@ -38,7 +38,7 @@ defmodule TMITest do
 
         for message <- messages do
           %{"subscription" => %{"type" => type}, "event" => payload} = message
-          assert _event = TMI.EventSub.Events.from_payload(type, payload)
+          assert _event = TwitchChat.EventSub.Events.from_payload(type, payload)
         end
       end
     end

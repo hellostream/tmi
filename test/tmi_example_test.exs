@@ -1,4 +1,4 @@
-defmodule TMIExampleTest do
+defmodule TwitchChatExampleTest do
   use ExUnit.Case, async: true
 
   describe "emote_mode" do
@@ -15,9 +15,9 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv NOTICE #spirodonfl :This room is now in emote-only mode."]
          }}
 
-      expected = %TMI.Chat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: true}
+      expected = %TwitchChat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: true}
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
 
     test "emote_only_off" do
@@ -33,9 +33,9 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv NOTICE #spirodonfl :This room is no longer in emote-only mode."]
          }}
 
-      expected = %TMI.Chat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: false}
+      expected = %TwitchChat.Events.EmoteMode{channel: "#spirodonfl", emote_only?: false}
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 
@@ -55,7 +55,7 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv USERNOTICE #spirodonfl"]
          }}
 
-      expected = %TMI.Chat.Events.CommunitySubGift{
+      expected = %TwitchChat.Events.CommunitySubGift{
         badge_info: [{"subscriber", 1}],
         badges: [{"subscriber", 0}, {"premium", 1}],
         channel: "#spirodonfl",
@@ -90,7 +90,7 @@ defmodule TMIExampleTest do
         user_type: :normal
       }
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 
@@ -110,7 +110,7 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv USERNOTICE #spirodonfl"]
          }}
 
-      expected = %TMI.Chat.Events.PayItForward{
+      expected = %TwitchChat.Events.PayItForward{
         badge_info: [{"subscriber", 1}],
         badges: [{"subscriber", 0}, {"premium", 1}],
         channel: "#spirodonfl",
@@ -134,7 +134,7 @@ defmodule TMIExampleTest do
         user_type: :normal
       }
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 
@@ -154,7 +154,7 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv USERNOTICE #spirodonfl"]
          }}
 
-      expected = %TMI.Chat.Events.SubGift{
+      expected = %TwitchChat.Events.SubGift{
         badge_info: [{"subscriber", 1}],
         badges: [{"subscriber", 0}, {"sub-gift-leader", 2}],
         channel: "#spirodonfl",
@@ -182,7 +182,7 @@ defmodule TMIExampleTest do
         user_type: :normal
       }
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 
@@ -202,7 +202,7 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv USERNOTICE #spirodonfl"]
          }}
 
-      expected = %TMI.Chat.Events.Sub{
+      expected = %TwitchChat.Events.Sub{
         badge_info: [{"subscriber", 1}],
         badges: [{"subscriber", 0}, {"sub-gifter", 100}],
         channel: "#spirodonfl",
@@ -231,7 +231,7 @@ defmodule TMIExampleTest do
         user_type: :normal
       }
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 
@@ -251,7 +251,7 @@ defmodule TMIExampleTest do
            args: ["tmi.twitch.tv USERNOTICE #spirodonfl"]
          }}
 
-      expected = %TMI.Chat.Events.Raid{
+      expected = %TwitchChat.Events.Raid{
         badge_info: [{"subscriber", 1}],
         badges: [{"subscriber", 0}],
         channel: "#spirodonfl",
@@ -274,7 +274,7 @@ defmodule TMIExampleTest do
         viewer_count: 54
       }
 
-      assert TMI.parse_message(message) == expected
+      assert TwitchChat.parse_message(message) == expected
     end
   end
 end

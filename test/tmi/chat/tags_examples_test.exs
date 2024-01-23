@@ -1,7 +1,7 @@
-defmodule TMI.Chat.TagsExamplesTest do
+defmodule TwitchChat.TagsExamplesTest do
   use ExUnit.Case, async: true
 
-  alias TMI.Chat.Tags
+  alias TwitchChat.Tags
 
   # ----------------------------------------------------------------------------
   # communitypayforward

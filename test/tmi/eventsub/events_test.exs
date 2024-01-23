@@ -1,4 +1,4 @@
-defmodule TMI.Eventsub.EventsTest do
+defmodule TwitchChat.Eventsub.EventsTest do
   use ExUnit.Case, async: true
-  doctest TMI.EventSub.Events, import: true
+  doctest TwitchChat.EventSub.Events, import: true
 end

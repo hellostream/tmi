@@ -1,5 +1,5 @@
-defmodule TMI.Chat.ClientTest do
+defmodule TwitchChat.ClientTest do
   use ExUnit.Case, async: true
 
-  doctest TMI.Chat.Client, import: true
+  doctest TwitchChat.Client, import: true
 end

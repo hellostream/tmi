@@ -1,5 +1,5 @@
-defmodule TMI.EventTest do
+defmodule TwitchChat.EventTest do
   use ExUnit.Case, async: true
-  alias TMI.Event
+  alias TwitchChat.Event
   doctest Event
 end

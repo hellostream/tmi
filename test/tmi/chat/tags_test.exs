@@ -1,7 +1,7 @@
-defmodule TMI.Chat.TagsTest do
+defmodule TwitchChat.TagsTest do
   use ExUnit.Case, async: true
 
-  alias TMI.Chat.Tags
+  alias TwitchChat.Tags
 
   doctest Tags
 
