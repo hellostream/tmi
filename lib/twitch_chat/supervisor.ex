@@ -18,9 +18,6 @@ defmodule TwitchChat.Supervisor do
 
   @impl true
   def init({bot, opts}) do
-    {eventsub_opts, opts} = Keyword.pop(opts, :event_sub, start?: false)
-
-    # IRC Bot config.
     {is_verified, opts} = Keyword.pop(opts, :is_verified, false)
     {mod_channels, opts} = Keyword.pop(opts, :mod_channels, [])
 
@@ -34,8 +31,7 @@ defmodule TwitchChat.Supervisor do
       {TwitchChat.ChannelServer, {bot, conn, is_verified, mod_channels}},
       {TwitchChat.ConnectionServer, {bot, conn}},
       {TwitchChat.WhisperServer, {bot, conn}},
-      {bot, conn},
-      {TwitchChat.EventSub.Socket, eventsub_opts}
+      {bot, conn}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
