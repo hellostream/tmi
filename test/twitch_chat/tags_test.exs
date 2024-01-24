@@ -15,7 +15,7 @@ defmodule TwitchChat.TagsTest do
 
   describe "parse!/1" do
     defp tagstrings(file) do
-      "../support/data/irc/tags"
+      "../support/data/tags"
       |> Path.expand(__DIR__)
       |> Path.join(file <> ".txt")
       |> File.read!()

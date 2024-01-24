@@ -288,7 +288,7 @@ defmodule TwitchChat.Tags do
         theme ->
           Logger.warning("""
           [TwitchChat.Tags] You found an unsupported gift theme: `#{inspect(theme)}`
-          Please report it as an issue at: <https://github.com/ryanwinchester/tmi.ex>
+          Please report it as an issue at: <https://github.com/hellostream/twitch_chat>
           """)
 
           {:unknown, theme}
@@ -306,7 +306,7 @@ defmodule TwitchChat.Tags do
         milestone ->
           Logger.warning("""
           [TwitchChat.Tags] You found an unsupported milestone: `#{inspect(milestone)}`
-          Please report it as an issue at: <https://github.com/ryanwinchester/tmi.ex>
+          Please report it as an issue at: <https://github.com/hellostream/twitch_chat>
           """)
 
           {:unknown, milestone}
@@ -515,7 +515,7 @@ defmodule TwitchChat.Tags do
     # add support for in the future.
     Logger.warning("""
     [TwitchChat.Tags] You found an unsupported tag: `#{inspect(tag)}`
-    Please report it as an issue at: <https://github.com/ryanwinchester/tmi.ex>
+    Please report it as an issue at: <https://github.com/hellostream/twitch_chat>
     """)
 
     tag
