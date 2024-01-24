@@ -274,10 +274,9 @@ defmodule TwitchChat.Bot do
     end
   end
 
-  @doc """
-  This is the default implementation of `handle_event/1` that generally just
-  does a debug log of the events in different formats, depending on the event.
-  """
+  # This is the default implementation of `handle_event/1` that generally just
+  # does a debug log of the events in different formats, depending on the event.
+  @doc false
   def default_handle_event(%TwitchChat.Events.Message{highlighted?: true} = event, module) do
     debug(module, [
       "[#{event.channel}] ",
@@ -312,20 +311,13 @@ defmodule TwitchChat.Bot do
     debug(module, "[#{msg.cmd}] #{inspect(msg.args)}")
   end
 
-  def default_handle_event(
-        %TwitchChat.EventSub.Events.Unrecognized{msg: %ExIRC.Message{} = msg},
-        module
-      ) do
-    debug(module, "[#{msg.cmd}] #{inspect(msg.args)}")
-  end
-
   def default_handle_event(event, module) do
     debug(module, "EVENT\n#{inspect(event, pretty: true)}")
   end
 
-  @doc """
-  Apply the incoming IRC messages to the bot callbacks.
-  """
+  ## Apply the incoming IRC messages to the bot callbacks.
+
+  @doc false
   def apply_incoming_to_bot({:unrecognized, _tag_string, %ExIRC.Message{}} = msg, bot) do
     parse_message(msg) |> bot.handle_event()
   end
@@ -390,15 +382,17 @@ defmodule TwitchChat.Bot do
     bot.handle_unrecognized(msg)
   end
 
+  ## Message Parsing
+
   @doc """
-  Convert the ExIRC message to bot message.
+  Convert the ExIRC message to an event.
 
   NOTE: I may want to recursively parse the message args until I get one of the
   `PRIVMSG`, `USERNOTICE`, etc. messages.
   As it is now, if we get a message or system_msg or anything that has that
   text, we could get unexpected results since `String.contains?/2` could match.
-
   """
+  @spec parse_message({atom(), String.t(), struct()}) :: TwitchChat.Events.event()
   def parse_message({:unrecognized, tag_string, %ExIRC.Message{args: [arg]} = msg}) do
     cond do
       String.contains?(arg, "PRIVMSG") ->
@@ -463,6 +457,11 @@ defmodule TwitchChat.Bot do
       %{message: "Hello World", user_login: "shyryan", channel: "#shyryan"}
 
   """
+  @spec message_args_to_map(String.t()) :: %{
+          channel: String.t(),
+          message: String.t(),
+          user_login: String.t()
+        }
   def message_args_to_map(message) do
     [full_sender, channel_message] = :binary.split(message, " PRIVMSG ")
     [channel, message] = :binary.split(channel_message, " :")
@@ -479,6 +478,7 @@ defmodule TwitchChat.Bot do
       %{message: "Hello World", user_login: "johndoe"}
 
   """
+  @spec whisper_args_to_map(String.t()) :: %{message: String.t(), user_login: String.t()}
   def whisper_args_to_map(message) do
     [full_sender, recipient_message] = :binary.split(message, " WHISPER ")
     [_recipient, message] = :binary.split(recipient_message, " :")
@@ -495,6 +495,7 @@ defmodule TwitchChat.Bot do
       %{channel: "#ryanwinchester_"}
 
   """
+  @spec usernotice_args_to_map(String.t()) :: %{channel: String.t()}
   def usernotice_args_to_map(message) do
     [_server, channel] = :binary.split(message, " USERNOTICE ")
     %{channel: channel}
@@ -510,6 +511,7 @@ defmodule TwitchChat.Bot do
       %{channel: "#ryanwinchester_"}
 
   """
+  @spec notice_args_to_map(String.t()) :: %{channel: String.t()}
   def notice_args_to_map(message) do
     [_server, notice] = :binary.split(message, " NOTICE ")
     [channel, _rest] = :binary.split(notice, " :")
@@ -525,6 +527,7 @@ defmodule TwitchChat.Bot do
       %{channel: "#ryanwinchester_"}
 
   """
+  @spec roomstate_args_to_map(String.t()) :: %{channel: String.t()}
   def roomstate_args_to_map(message) do
     [_server, channel] = :binary.split(message, " ROOMSTATE ")
     %{channel: channel}
@@ -539,6 +542,7 @@ defmodule TwitchChat.Bot do
       %{channel: "#ryanwinchester_", user_login: "abesaibot"}
 
   """
+  @spec clearchat_args_to_map(String.t()) :: %{channel: String.t(), user_login: String.t()}
   def clearchat_args_to_map(message) do
     [_server, clearchat] = :binary.split(message, " CLEARCHAT ")
     [channel, user] = :binary.split(clearchat, " :")
