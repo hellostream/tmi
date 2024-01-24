@@ -26,10 +26,6 @@ defmodule TwitchChat.WhisperServer do
 
   @hibernate_after_ms 120_000
 
-  # ----------------------------------------------------------------------------
-  # Public API
-  # ----------------------------------------------------------------------------
-
   @doc """
   Start the message server. Usually because of a `JOIN`.
   """
@@ -69,10 +65,7 @@ defmodule TwitchChat.WhisperServer do
   # GenServer callbacks
   # ----------------------------------------------------------------------------
 
-  @doc """
-  Invoked when the server is started. `start_link/3` will block until it
-  returns.
-  """
+  @doc false
   @impl GenServer
   def init({bot, conn}) do
     state = %{
@@ -88,9 +81,7 @@ defmodule TwitchChat.WhisperServer do
     {:ok, state}
   end
 
-  @doc """
-  Invoked to handle asynchronous `cast/2` messages.
-  """
+  @doc false
   @impl GenServer
   # If we are paused, we will add it to the queue and start scheduling messages.
   def handle_cast({:add, message}, %{timer_ref: nil} = state) do
@@ -103,12 +94,7 @@ defmodule TwitchChat.WhisperServer do
     {:noreply, %{state | queue: :queue.in(message, state.queue)}}
   end
 
-  @doc """
-  Invoked to handle all other messages.
-
-  For example calling `Process.send_after(self(), :foo, 1000)` would send `:foo`
-  after one second, and we could match on that here.
-  """
+  @doc false
   @impl GenServer
   def handle_info(:send, state) do
     send_and_schedule_next(state)

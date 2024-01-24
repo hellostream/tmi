@@ -72,10 +72,11 @@ defmodule TwitchChat.Fields do
 
   @typedoc """
   Twitch IRC tag `ban-duration`.
-  The message includes this tag if the user was put in a timeout. The tag
-  contains the duration of the timeout, in seconds.
+  The message includes this tag if the user was put in a timeout or banned.
+  The tag contains the duration of the timeout, in seconds, or `:infinity` if
+  they were permabanned.
   """
-  @type ban_duration :: non_neg_integer()
+  @type ban_duration :: non_neg_integer() | :infinity
 
   @typedoc """
   Twitch IRC tag `bits`.

@@ -33,10 +33,6 @@ defmodule TwitchChat.ChannelServer do
 
   @hibernate_after_ms 60_000
 
-  # ----------------------------------------------------------------------------
-  # Public API
-  # ----------------------------------------------------------------------------
-
   @doc """
   Start the channel server.
   """
@@ -92,10 +88,7 @@ defmodule TwitchChat.ChannelServer do
   # GenServer callbacks
   # ----------------------------------------------------------------------------
 
-  @doc """
-  Invoked when the server is started. `start_link/3` will block until it
-  returns.
-  """
+  @doc false
   @impl GenServer
   def init({bot, conn, is_verified, mod_channels}) do
     state = %{
@@ -113,18 +106,13 @@ defmodule TwitchChat.ChannelServer do
     {:ok, state}
   end
 
-  @doc """
-  Invoked to handle synchronous `call/3` messages. `call/3` will block until a
-  reply is received (unless the call times out or nodes are disconnected).
-  """
+  @doc false
   @impl GenServer
   def handle_call(:list_channels, _from, state) do
     {:reply, state.channels, state}
   end
 
-  @doc """
-  Invoked to handle asynchronous `cast/2` messages.
-  """
+  @doc false
   @impl GenServer
   def handle_cast({:set_config, opts}, state) do
     config = Enum.into(opts, %{}) |> Map.take([:rate])
@@ -171,12 +159,7 @@ defmodule TwitchChat.ChannelServer do
     end
   end
 
-  @doc """
-  Invoked to handle all other messages.
-
-  For example calling `Process.send_after(self(), :foo, 1000)` would send `:foo`
-  after one second, and we could match on that here.
-  """
+  @doc false
   @impl GenServer
   def handle_info(:join, state) do
     join_and_schedule_next(state)

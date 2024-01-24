@@ -27,10 +27,10 @@ defmodule TwitchChat.Supervisor do
     {:ok, client} = TwitchChat.Client.start_link(Keyword.take(opts, [:debug]))
 
     conn = build_irc_conn(client, opts)
-    dynamic_supervisor = TwitchChat.MessageServer.supervisor_name(bot)
+    msg_server_supervisor = TwitchChat.MessageServer.supervisor_name(bot)
 
     children = [
-      {DynamicSupervisor, strategy: :one_for_one, name: dynamic_supervisor},
+      {DynamicSupervisor, strategy: :one_for_one, name: msg_server_supervisor},
       {TwitchChat.ChannelServer, {bot, conn, is_verified, mod_channels}},
       {TwitchChat.ConnectionServer, {bot, conn}},
       {TwitchChat.WhisperServer, {bot, conn}},

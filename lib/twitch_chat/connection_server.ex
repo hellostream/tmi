@@ -14,10 +14,6 @@ defmodule TwitchChat.ConnectionServer do
 
   @hibernate_after_ms 20_000
 
-  # ----------------------------------------------------------------------------
-  # Public API
-  # ----------------------------------------------------------------------------
-
   @doc """
   Start the connection handler.
   """
@@ -41,35 +37,21 @@ defmodule TwitchChat.ConnectionServer do
   # GenServer callbacks
   # ----------------------------------------------------------------------------
 
-  @doc """
-  Invoked when the server is started. `start_link/3` will block until it
-  returns.
-  """
+  @doc false
   @impl GenServer
   def init({bot, conn}) do
     Client.add_handler(conn, self())
     {:ok, %{bot: bot, conn: conn}, {:continue, :connect}}
   end
 
-  @doc """
-  Invoked to handle `continue` instructions.
-
-  It is useful for performing work after initialization or for splitting the
-  work in a callback in multiple steps, updating the process state along the
-  way.
-  """
+  @doc false
   @impl GenServer
   def handle_continue(:connect, state) do
     connect(state.conn)
     {:noreply, state}
   end
 
-  @doc """
-  Invoked to handle all other messages.
-
-  For example calling `Process.send_after(self(), :foo, 1000)` would send `:foo`
-  after one second, and we could match on that here.
-  """
+  @doc false
   @impl GenServer
   def handle_info(:connect, state) do
     unless Client.is_connected?(state.conn.client) do
@@ -120,6 +102,7 @@ defmodule TwitchChat.ConnectionServer do
 
   # Quit the channels and close the underlying client connection when the
   # process is terminating.
+  @doc false
   @impl GenServer
   def terminate(_, %{conn: conn}) do
     Logger.warning("[TwitchChat.ConnectionServer] Terminating...")

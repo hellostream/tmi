@@ -23,7 +23,7 @@ defmodule TwitchChat.Bot do
           case cmd do
             "roll" -> say(msg.channel, "#{msg.user_name} rolled a #{Enum.random(1..6)}!")
             "echo " <> rest -> say(msg.channel, rest)
-            _ -> :noop
+            _ -> nil
           end
         end
       end
@@ -40,12 +40,12 @@ defmodule TwitchChat.Bot do
 
   ## IRC-related callbacks, most won't care about.
 
-  @callback handle_connected(server :: String.t(), port :: integer) :: any
+  @callback handle_connected(server :: String.t(), port :: :inet.port_number()) :: any
   @callback handle_disconnected() :: any
   @callback handle_join(channel :: String.t()) :: any
   @callback handle_join(channel :: String.t(), user :: String.t()) :: any
   @callback handle_logged_in() :: any
-  @callback handle_login_failed(reason :: atom) :: any
+  @callback handle_login_failed(reason :: atom()) :: any
   @callback handle_part(channel :: String.t()) :: any
   @callback handle_part(channel :: String.t(), user :: String.t()) :: any
   @callback handle_unrecognized(msg :: any) :: any
@@ -232,6 +232,8 @@ defmodule TwitchChat.Bot do
 
       @impl TwitchChat.Bot
       def handle_part(channel) do
+        # If you get banned or timed out
+        if MapSet.member?(list_channels(), channel), do: part(channel)
         debug(__MODULE__, "[#{channel}] you left")
       end
 
@@ -298,6 +300,14 @@ defmodule TwitchChat.Bot do
     debug(module, "WHISPER - <#{event.user_login}> #{event.message}")
   end
 
+  def default_handle_event(%TwitchChat.Events.Ban{ban_duration: :infinity} = event, module) do
+    debug(module, "BANNED [#{event.channel}] - <#{event.user_login}>")
+  end
+
+  def default_handle_event(%TwitchChat.Events.Ban{} = event, module) do
+    debug(module, "TIMEOUT [#{event.channel}] - <#{event.user_login}> for #{event.ban_duration}s")
+  end
+
   def default_handle_event(%TwitchChat.Events.Unrecognized{msg: %ExIRC.Message{} = msg}, module) do
     debug(module, "[#{msg.cmd}] #{inspect(msg.args)}")
   end
@@ -342,6 +352,10 @@ defmodule TwitchChat.Bot do
 
   def apply_incoming_to_bot({:joined, channel, user}, bot) do
     bot.handle_join(channel, user.user)
+  end
+
+  def apply_incoming_to_bot({:parted, channel}, bot) do
+    bot.handle_part(channel)
   end
 
   def apply_incoming_to_bot({:parted, channel, user}, bot) do
@@ -422,6 +436,12 @@ defmodule TwitchChat.Bot do
         tag_string
         |> TwitchChat.Tags.parse!()
         |> TwitchChat.Events.from_map_with_name(:whisper, whisper_args_to_map(arg))
+
+      String.contains?(arg, "CLEARCHAT") ->
+        tag_string
+        |> TwitchChat.Tags.parse!()
+        |> Map.update(:ban_duration, :infinity, & &1)
+        |> TwitchChat.Events.from_map_with_name(:ban, clearchat_args_to_map(arg))
 
       true ->
         tag_string
@@ -508,5 +528,20 @@ defmodule TwitchChat.Bot do
   def roomstate_args_to_map(message) do
     [_server, channel] = :binary.split(message, " ROOMSTATE ")
     %{channel: channel}
+  end
+
+  @doc """
+  Parse a CLEARCHAT message.
+
+  ## Example:
+
+      iex> clearchat_args_to_map("tmi.twitch.tv CLEARCHAT #ryanwinchester_ :abesaibot")
+      %{channel: "#ryanwinchester_", user_login: "abesaibot"}
+
+  """
+  def clearchat_args_to_map(message) do
+    [_server, clearchat] = :binary.split(message, " CLEARCHAT ")
+    [channel, user] = :binary.split(clearchat, " :")
+    %{channel: channel, user_login: user}
   end
 end
