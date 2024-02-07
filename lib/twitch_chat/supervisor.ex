@@ -9,11 +9,15 @@ defmodule TwitchChat.Supervisor do
   """
   @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(opts) do
-    {bot, opts} = Keyword.pop!(opts, :bot)
-    default_name = Module.concat([bot, "BotSupervisor"])
-    {name, opts} = Keyword.pop(opts, :name, default_name)
+    if opts[:start?] == false do
+      :ignore
+    else
+      {bot, opts} = Keyword.pop!(opts, :bot)
+      default_name = Module.concat([bot, "BotSupervisor"])
+      {name, opts} = Keyword.pop(opts, :name, default_name)
 
-    Supervisor.start_link(__MODULE__, {bot, opts}, name: name)
+      Supervisor.start_link(__MODULE__, {bot, opts}, name: name)
+    end
   end
 
   @impl true
