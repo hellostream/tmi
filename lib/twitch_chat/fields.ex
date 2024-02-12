@@ -44,12 +44,12 @@ defmodule TwitchChat.Fields do
   this tag contains metadata only for subscriber badges, to indicate the number
   of months the user has been a subscriber.
   """
-  @type badge_info :: [{String.t(), non_neg_integer()}]
+  @type badge_info :: [{String.t(), String.t()}]
 
   @typedoc """
   Twitch IRC tag `badges`.
   List of chat badges in the form, {badge, version}. For
-  example, `{:admin, 1}`.
+  example, `"admin", "1"}`.
 
   There are many possible badge values, but here are few:
    * admin
@@ -68,7 +68,7 @@ defmodule TwitchChat.Fields do
   APIs. Match the badge to the set-id field’s value in the response. Then,
   match the version to the id field in the list of versions.
   """
-  @type badges :: [{String.t(), non_neg_integer()}]
+  @type badges :: [{String.t(), String.t()}]
 
   @typedoc """
   Twitch IRC tag `ban-duration`.

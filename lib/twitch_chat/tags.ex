@@ -236,8 +236,8 @@ defmodule TwitchChat.Tags do
       val
       |> String.split(",")
       |> Enum.map(fn item ->
-        [badge, n] = String.split(item, "/")
-        {badge, String.to_integer(n)}
+        [badge, info] = String.split(item, "/")
+        {badge, info}
       end)
 
     {tag_name(key), info}
@@ -248,8 +248,8 @@ defmodule TwitchChat.Tags do
       val
       |> String.split(",")
       |> Enum.map(fn item ->
-        [badge, n] = String.split(item, "/")
-        {badge, String.to_integer(n)}
+        [badge, version] = String.split(item, "/")
+        {badge, version}
       end)
 
     {tag_name(key), info}
